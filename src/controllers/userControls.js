@@ -1,5 +1,6 @@
-const {admin,database} = require('../utils/firebase')
-const chalk = require('chalk')
+const {admin,database} = require('../utils/firebase');
+const chalk = require('chalk');
+const uniqid = require('uniqid');
 
 const createUser = (user)=>{
     return new Promise((resolve, reject)=>{
@@ -74,8 +75,44 @@ const getUserInfo = (uid)=>{
     })
 }
 
+//Post an Item
+const addItem = (uid,itemName,itemDesc,location) => {
+    return new Promise((resolve, reject)=>{
+        console.log(chalk.yellow("Creating new item..."))
+        var id = uniqid();
+        const itemRef = database.collection('Items').doc(id)
+        itemRef.set({
+            item_id: id,
+            uid: uid,
+            itemName:itemName,
+            itemDesc:itemDesc,
+            location:location
+        })
+        .then((resp)=>{
+            const userRef = database.collection('Users').doc(uid)
+            userRef.update({
+                userProduct: admin.firestore.FieldValue.arrayUnion(id)
+            })
+            .then((resp)=>{
+                console.log(chalk.green("Item created!"));
+                resolve({
+                    statusCode:200,
+                    payload:{
+                        Msg:"Item successfully created!"
+                    }
+                })
+            })
+        })
+        .catch((e)=>{
+            console.log(chalk.red("Error in creating item"));
+            reject(e)
+        })
+    })
+}
+
 module.exports={
     createUser,
     checkUserUid,
-    getUserInfo
+    getUserInfo,
+    addItem
 }

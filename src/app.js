@@ -13,9 +13,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //Route imports
 const userRoute = require('./routes/user');
+const itemRoute = require('./routes/items')
 
 //Use Routes
 app.use('/user',userRoute);
+app.use('/item',itemRoute);
 
 const port = process.env.PORT
 app.listen(port,()=>{
