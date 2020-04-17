@@ -1,7 +1,8 @@
-const {admin,database} = require('../utils/firebase');
+const {admin,database,bucket} = require('../utils/firebase');
 const chalk = require('chalk');
 const uniqid = require('uniqid');
 
+//Create user
 const createUser = (user)=>{
     return new Promise((resolve, reject)=>{
         const userRef = database.collection('Users').doc(user.uid)
@@ -38,6 +39,7 @@ const createUser = (user)=>{
     })
 }
 
+//Check if user uid is valid
 const checkUserUid = (uid) => {
     return new Promise((resolve, reject)=>{
         admin.auth().getUser(uid)
@@ -52,6 +54,7 @@ const checkUserUid = (uid) => {
     })
 }
 
+// Fetch user information
 const getUserInfo = (uid)=>{
     return new Promise((resolve, reject)=>{
         console.log(chalk.yellow("Getting user info..."))
@@ -76,7 +79,7 @@ const getUserInfo = (uid)=>{
 }
 
 //Post an Item
-const addItem = (uid,itemName,itemDesc,location) => {
+const addItem = (uid,itemName,itemDesc,location,file) => {
     return new Promise((resolve, reject)=>{
         console.log(chalk.yellow("Creating new item..."))
         var id = uniqid();
@@ -94,13 +97,18 @@ const addItem = (uid,itemName,itemDesc,location) => {
                 userProduct: admin.firestore.FieldValue.arrayUnion(id)
             })
             .then((resp)=>{
-                console.log(chalk.green("Item created!"));
-                resolve({
-                    statusCode:200,
-                    payload:{
-                        Msg:"Item successfully created!"
-                    }
-                })
+
+                //Storing product image file
+                bucket.file(`product_images/${uid}/${id}`).save(file)
+                .then(()=>{
+                    console.log(chalk.green("Item created!"));
+                    resolve({
+                        statusCode:200,
+                        payload:{
+                            Msg:"Item successfully created!"
+                        }
+                    })
+                })  
             })
         })
         .catch((e)=>{
