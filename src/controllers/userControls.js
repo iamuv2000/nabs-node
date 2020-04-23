@@ -84,12 +84,15 @@ const addItem = (uid,itemName,itemDesc,location,file) => {
         console.log(chalk.yellow("Creating new item..."))
         var id = uniqid();
         const itemRef = database.collection('Items').doc(id)
+        file = Buffer.from(file).toString('base64')
         itemRef.set({
             item_id: id,
             uid: uid,
             itemName:itemName,
             itemDesc:itemDesc,
-            location:location
+            location:location,
+            file,
+            DateCreated: new Date(),
         })
         .then((resp)=>{
             const userRef = database.collection('Users').doc(uid)
@@ -97,18 +100,13 @@ const addItem = (uid,itemName,itemDesc,location,file) => {
                 userProduct: admin.firestore.FieldValue.arrayUnion(id)
             })
             .then((resp)=>{
-
-                //Storing product image file
-                bucket.file(`product_images/${uid}/${id}`).save(file)
-                .then(()=>{
-                    console.log(chalk.green("Item created!"));
+                console.log(chalk.green("Item created!"));
                     resolve({
                         statusCode:200,
                         payload:{
                             Msg:"Item successfully created!"
                         }
                     })
-                })  
             })
         })
         .catch((e)=>{

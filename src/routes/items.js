@@ -9,6 +9,7 @@ const upload = multer({
     }
 }) 
 
+
 //Creating a new item
 router.post('/create' ,upload.single('img_file'), (req,res)=>{
     console.log(req.file)
