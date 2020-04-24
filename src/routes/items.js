@@ -23,4 +23,21 @@ router.post('/create' ,upload.single('img_file'), (req,res)=>{
     .catch(err => res.status(400).send(err))
 })
 
+//Updating a new item
+router.post('/update' ,upload.single('img_file'), (req,res)=>{
+    console.log(req.file);
+
+    var item = {
+        itemName : req.body.itemName,
+        itemDesc : req.body.itemDesc,
+        location : req.body.location,
+        file : req.file.buffer,
+        itemId : req.body.itemId
+    }
+
+    userControls.updateItem(item)
+    .then(resp=>res.status(200).send(resp))
+    .catch(err => res.status(400).send(err))
+})
+
 module.exports=router;

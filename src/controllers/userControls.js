@@ -116,9 +116,38 @@ const addItem = (uid,itemName,itemDesc,location,file) => {
     })
 }
 
+//Update an Item
+const updateItem = ({uid,itemName,itemDesc,location,file,itemId}) => {
+    return new Promise((resolve, reject)=>{
+        console.log(chalk.yellow("Updating the item..."))
+        const itemRef = database.collection('Items').doc(itemId)
+        file = Buffer.from(file).toString('base64')
+        itemRef.update({
+            itemName:itemName,
+            itemDesc:itemDesc,
+            location:location,
+            file
+        })
+        .then((resp)=>{
+            console.log(chalk.green("Item updated!"));
+            resolve({
+                statusCode:200,
+                payload:{
+                    Msg:"Item successfully updated!"
+                }
+            })
+        })
+        .catch((e)=>{
+            console.log(chalk.red("Error in creating item"));
+            reject(e)
+        })
+    })
+}
+
 module.exports={
     createUser,
     checkUserUid,
     getUserInfo,
-    addItem
+    addItem,
+    updateItem
 }
