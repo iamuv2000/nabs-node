@@ -40,4 +40,16 @@ router.post('/update' ,upload.single('img_file'), (req,res)=>{
     .catch(err => res.status(400).send(err))
 })
 
+//Delete item
+router.post('/delete' , (req,res)=>{
+   
+    var deleteItem = {
+        itemId : req.body.itemId,
+    }
+
+    userControls.deleteItem(deleteItem)
+    .then(resp=>res.status(200).send(resp))
+    .catch(err => res.status(400).send(err))
+})
+
 module.exports=router;

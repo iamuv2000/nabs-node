@@ -144,10 +144,33 @@ const updateItem = ({uid,itemName,itemDesc,location,file,itemId}) => {
     })
 }
 
+//Delete item
+const deleteItem = ({itemId}) => {
+    return new Promise((resolve, reject)=>{
+        console.log(chalk.yellow("Deleting the item..."))
+        const itemRef = database.collection('Items').doc(itemId)
+        itemRef.delete()
+        .then((resp)=>{
+            console.log(chalk.green("Item deleted!"));
+            resolve({
+                statusCode:200,
+                payload:{
+                    Msg:"Item successfully deleted!"
+                }
+            })
+        })
+        .catch((e)=>{
+            console.log(chalk.red("Error in deleting item"));
+            reject(e)
+        })
+    })
+}
+
 module.exports={
     createUser,
     checkUserUid,
     getUserInfo,
     addItem,
-    updateItem
+    updateItem,
+    deleteItem
 }
