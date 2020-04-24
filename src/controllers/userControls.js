@@ -82,11 +82,12 @@ const getUserInfo = (uid)=>{
 const addItem = (uid,itemName,itemDesc,location,file) => {
     return new Promise((resolve, reject)=>{
         console.log(chalk.yellow("Creating new item..."))
-        var id = uniqid();
-        const itemRef = database.collection('Items').doc(id)
+        var itemId = uniqid();
+        location = location.toUpperCase();
+        const itemRef = database.collection('Items').doc(itemId)
         file = Buffer.from(file).toString('base64')
         itemRef.set({
-            item_id: id,
+            itemId: itemId,
             uid: uid,
             itemName:itemName,
             itemDesc:itemDesc,
@@ -95,18 +96,12 @@ const addItem = (uid,itemName,itemDesc,location,file) => {
             DateCreated: new Date(),
         })
         .then((resp)=>{
-            const userRef = database.collection('Users').doc(uid)
-            userRef.update({
-                userProduct: admin.firestore.FieldValue.arrayUnion(id)
-            })
-            .then((resp)=>{
-                console.log(chalk.green("Item created!"));
-                    resolve({
-                        statusCode:200,
-                        payload:{
-                            Msg:"Item successfully created!"
-                        }
-                    })
+            console.log(chalk.green("Item created!"));
+            resolve({
+                statusCode:200,
+                payload:{
+                    Msg:"Item successfully created!"
+                }
             })
         })
         .catch((e)=>{
@@ -166,11 +161,101 @@ const deleteItem = ({itemId}) => {
     })
 }
 
+//Fetch user's items
+const fetchUserItems = (uid) => {
+    return new Promise((resolve, reject)=>{
+        console.log(chalk.yellow("Fetching the items..."))
+        database.collection('Items').where('uid','==',uid)
+        .get()
+        .then((snapshot)=>{
+            if (snapshot.empty) {
+                console.log('No matching documents.');
+                return;
+            }
+            var data = []
+            snapshot.forEach(doc => {
+                var obj = doc.data();
+                var itemData = {
+                    itemId: obj.itemId,
+                    uid: obj.uid,
+                    itemName: obj.itemName,
+                    itemDesc: obj.itemDesc,
+                    location: obj.location,
+                    file : obj.file
+                }
+        
+                data.push(itemData);
+            });
+            console.log(chalk.green("Items fetched!"));
+            resolve({
+                statusCode:200,
+                payload:{
+                    Msg:"Item successfully fetched!",
+                    payload: {
+                        data: data
+                    }
+                }
+            })
+        })
+        .catch((e)=>{
+            console.log(e)
+            console.log(chalk.red("Error in fetching item"));
+            reject(e)
+        })
+    })
+}
+
+//Fetch user's items
+const fetchLocationBasedItems = (location) => {
+    return new Promise((resolve, reject)=>{
+        console.log(chalk.yellow("Fetching the items..."));
+        location = location.toUpperCase();
+        database.collection('Items').where('location','==',location)
+        .get()
+        .then((snapshot)=>{
+            if (snapshot.empty) {
+                console.log('No matching documents.');
+                return;
+            }
+            var data = []
+            snapshot.forEach(doc => {
+                var obj = doc.data();
+                var itemData = {
+                    itemId: obj.itemId,
+                    itemName: obj.itemName,
+                    itemDesc: obj.itemDesc,
+                    location: obj.location,
+                    file : obj.file
+                }
+        
+                data.push(itemData);
+            });
+            console.log(chalk.green("Items fetched!"));
+            resolve({
+                statusCode:200,
+                payload:{
+                    Msg:"Item successfully fetched!",
+                    payload: {
+                        data: data
+                    }
+                }
+            })
+        })
+        .catch((e)=>{
+            console.log(e)
+            console.log(chalk.red("Error in fetching item"));
+            reject(e)
+        })
+    })
+}
+
 module.exports={
     createUser,
     checkUserUid,
     getUserInfo,
     addItem,
     updateItem,
-    deleteItem
+    deleteItem,
+    fetchUserItems,
+    fetchLocationBasedItems
 }
