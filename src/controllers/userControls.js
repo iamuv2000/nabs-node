@@ -64,7 +64,7 @@ const getUserInfo = (uid)=>{
             if (docSnapshot.exists) {
                 userRef.onSnapshot((doc) => {
                     console.log(chalk.green("User exists!"));
-                    console.log(doc._fieldsProto)
+                    console.log(doc.data())
                     resolve(true)
          });
         }
@@ -210,7 +210,7 @@ const fetchLocationBasedItems = (location) => {
     return new Promise((resolve, reject)=>{
         console.log(chalk.yellow("Fetching the items..."));
         location = location.toUpperCase();
-        database.collection('Items').where('location','==',location)
+        database.collection('Items')
         .get()
         .then((snapshot)=>{
             if (snapshot.empty) {
@@ -235,9 +235,7 @@ const fetchLocationBasedItems = (location) => {
                 statusCode:200,
                 payload:{
                     Msg:"Item successfully fetched!",
-                    payload: {
-                        data: data
-                    }
+                    data: data
                 }
             })
         })
@@ -259,3 +257,5 @@ module.exports={
     fetchUserItems,
     fetchLocationBasedItems
 }
+
+// .where('location','==',location)
