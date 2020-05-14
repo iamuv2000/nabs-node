@@ -96,13 +96,19 @@ const addItem = (uid,itemName,itemDesc,location,file) => {
             DateCreated: new Date(),
         })
         .then((resp)=>{
-            console.log(chalk.green("Item created!"));
-            resolve({
-                statusCode:200,
-                payload:{
-                    Msg:"Item successfully created!"
-                }
+            const userRef = database.collection('Users').doc(uid)
+            userRef.update({
+                userProduct : admin.firestore.FieldValue.arrayUnion(itemId),
             })
+            .then(()=>{
+                console.log(chalk.green("Item created!"));
+                resolve({
+                    statusCode:200,
+                    payload:{
+                        Msg:"Item successfully created!"
+                    }
+                })
+            })   
         })
         .catch((e)=>{
             console.log(chalk.red("Error in creating item"));
@@ -164,7 +170,7 @@ const deleteItem = ({itemId}) => {
 //Fetch user's items
 const fetchUserItems = (uid) => {
     return new Promise((resolve, reject)=>{
-        console.log(chalk.yellow("Fetching the items..."))
+        console.log(chalk.yellow("Fetching the user items..."))
         database.collection('Items').where('uid','==',uid)
         .get()
         .then((snapshot)=>{
@@ -191,9 +197,7 @@ const fetchUserItems = (uid) => {
                 statusCode:200,
                 payload:{
                     Msg:"Item successfully fetched!",
-                    payload: {
-                        data: data
-                    }
+                    data: data
                 }
             })
         })
@@ -247,6 +251,42 @@ const fetchLocationBasedItems = (location) => {
     })
 }
 
+//Send the user a message
+const sendMessage = ({name, email, content, uid_sender ,itemId}) => {
+    return new Promise((resolve, reject)=>{
+        console.log(chalk.yellow("Sending message..."));
+        messageObj = {
+            name, email, content, uid_sender, itemId,
+        }
+        console.log(messageObj)
+        database.collection('Items').doc(itemId)
+        .get()
+        .then((docSnapshot) => {
+            var receiver_uid = docSnapshot.data().uid
+            console.log("Receiver uid: " + receiver_uid)
+            database.collection('Users').doc(receiver_uid)
+            .update({
+                barterProduct : admin.firestore.FieldValue.arrayUnion(messageObj), 
+            })
+            .then(()=>{
+                resolve({
+                    statusCode:200,
+                    payload:{
+                        Msg:"Message successfully sent!",
+                    }
+                })
+            })
+            .catch((e)=>{
+                console.log(e)
+            })
+        })
+        .catch((e)=>{
+            console.log(e)
+        })
+    })
+}
+
+
 module.exports={
     createUser,
     checkUserUid,
@@ -255,7 +295,8 @@ module.exports={
     updateItem,
     deleteItem,
     fetchUserItems,
-    fetchLocationBasedItems
+    fetchLocationBasedItems,
+    sendMessage
 }
 
 // .where('location','==',location)

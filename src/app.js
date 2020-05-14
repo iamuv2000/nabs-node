@@ -15,6 +15,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const userRoute = require('./routes/user');
 const itemRoute = require('./routes/items')
 
+app.get('/',(req,res)=>{
+    res.send({"Welcome_Message": "This is the NABS Official API"})
+})
+
+
 //Use Routes
 app.use('/user',userRoute);
 app.use('/item',itemRoute);

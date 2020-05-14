@@ -24,4 +24,20 @@ router.post('/allItems', (req,res)=>{
     .catch(err => res.status(400).send(err))
 })
 
+//Send a message
+router.post('/sendMessage', (req,res)=>{
+
+    messageObj ={
+        name: req.body.name,
+        email: req.body.email,
+        content: req.body.content,
+        uid_sender : req.body.uid_sender,
+        itemId: req.body.itemId
+    }
+
+    userControls.sendMessage(messageObj)
+    .then(resp=>res.status(200).send(resp))
+    .catch(err => res.status(400).send(err))
+})
+
 module.exports=router;
