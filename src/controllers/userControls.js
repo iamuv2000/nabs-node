@@ -252,11 +252,11 @@ const fetchLocationBasedItems = (location) => {
 }
 
 //Send the user a message
-const sendMessage = ({name, email, content, uid_sender ,itemId}) => {
+const sendMessage = ({name, email, content, uid_sender ,itemId, itemName}) => {
     return new Promise((resolve, reject)=>{
         console.log(chalk.yellow("Sending message..."));
         messageObj = {
-            name, email, content, uid_sender, itemId,
+            name, email, content, uid_sender, itemId,itemName
         }
         console.log(messageObj)
         database.collection('Items').doc(itemId)
@@ -287,6 +287,30 @@ const sendMessage = ({name, email, content, uid_sender ,itemId}) => {
 }
 
 
+//Get my messages
+const myMessages = ({uid}) => {
+    return new Promise((resolve, reject)=>{
+        console.log(chalk.yellow("Fetching messages..."));
+        console.log(uid)
+        database.collection('Users').doc(uid)
+        .get()
+        .then((docSnapshot) => {
+            console.log(chalk.green("Fetched messages"));
+            resolve({
+                statusCode:200,
+                payload:{
+                    Msg:"Message successfully sent!",
+                    data: docSnapshot.data().barterProduct
+                }
+            })
+        })
+        .catch((e)=>{
+            console.log(e)
+        })
+    })
+}
+
+
 module.exports={
     createUser,
     checkUserUid,
@@ -296,7 +320,8 @@ module.exports={
     deleteItem,
     fetchUserItems,
     fetchLocationBasedItems,
-    sendMessage
+    sendMessage,
+    myMessages
 }
 
 // .where('location','==',location)
