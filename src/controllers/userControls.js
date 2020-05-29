@@ -84,35 +84,40 @@ const addItem = (uid,itemName,itemDesc,location,file) => {
         console.log(chalk.yellow("Creating new item..."))
         var itemId = uniqid();
         location = location.toUpperCase();
-        const itemRef = database.collection('Items').doc(itemId)
-        file = Buffer.from(file).toString('base64')
-        itemRef.set({
-            itemId: itemId,
-            uid: uid,
-            itemName:itemName,
-            itemDesc:itemDesc,
-            location:location,
-            file,
-            DateCreated: new Date(),
-        })
-        .then((resp)=>{
-            const userRef = database.collection('Users').doc(uid)
-            userRef.update({
-                userProduct : admin.firestore.FieldValue.arrayUnion(itemId),
+        const userRef = database.collection('Users').doc(uid)
+        userRef.get()
+        .then((docSnapshot) => {
+            const itemRef = database.collection('Items').doc(itemId)
+            file = Buffer.from(file).toString('base64')
+            itemRef.set({
+                username : docSnapshot.data().name,
+                itemId: itemId,
+                uid: uid,
+                itemName:itemName,
+                itemDesc:itemDesc,
+                location:location,
+                file,
+                DateCreated: new Date(),
             })
-            .then(()=>{
-                console.log(chalk.green("Item created!"));
-                resolve({
-                    statusCode:200,
-                    payload:{
-                        Msg:"Item successfully created!"
-                    }
+            .then((resp)=>{
+                const userRef = database.collection('Users').doc(uid)
+                userRef.update({
+                    userProduct : admin.firestore.FieldValue.arrayUnion(itemId),
                 })
-            })   
-        })
-        .catch((e)=>{
-            console.log(chalk.red("Error in creating item"));
-            reject(e)
+                .then(()=>{
+                    console.log(chalk.green("Item created!"));
+                    resolve({
+                        statusCode:200,
+                        payload:{
+                            Msg:"Item successfully created!"
+                        }
+                    })
+                })   
+            })
+            .catch((e)=>{
+                console.log(chalk.red("Error in creating item"));
+                reject(e)
+            })
         })
     })
 }
@@ -229,7 +234,8 @@ const fetchLocationBasedItems = (location) => {
                     itemName: obj.itemName,
                     itemDesc: obj.itemDesc,
                     location: obj.location,
-                    file : obj.file
+                    file : obj.file,
+                    username : obj.username
                 }
         
                 data.push(itemData);

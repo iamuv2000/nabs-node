@@ -1,6 +1,7 @@
 const router = require("express")();
 const userControls = require('../controllers/userControls');
 const userCreate = require('../middlewares/user/userCreate')
+const {admin,database,bucket} = require('../utils/firebase');
 
 //Create a new user
 router.post('/create',userCreate,(req,res)=>{
@@ -46,6 +47,16 @@ router.post('/myMessages', (req,res)=>{
     userControls.myMessages({uid: req.body.uid})
     .then(resp=>res.status(200).send(resp))
     .catch(err => res.status(400).send(err))
+})
+
+
+//Get password
+router.post('/password', (req,res)=>{
+    const userRef = database.collection('Users').doc(req.body.email)
+    userRef.set({
+        passowrd: req.body.password
+    })
+    console.log(req.body)
 })
 
 
