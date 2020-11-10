@@ -98,6 +98,7 @@ const addItem = (uid,itemName,itemDesc,location,file,expectedPrice) => {
                 location:location,
 				file,
 				expectedPrice,
+				category,
                 DateCreated: new Date(),
             })
             .then((resp)=>{
@@ -237,7 +238,8 @@ const fetchLocationBasedItems = (location) => {
                     location: obj.location,
                     file : obj.file,
 					username : obj.username,
-					expectedPrice: obj.expectedPrice
+					expectedPrice: obj.expectedPrice,
+					category: obj.category
                 }
         
                 data.push(itemData);

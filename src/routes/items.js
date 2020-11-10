@@ -18,8 +18,9 @@ router.post('/create' ,upload.single('img_file'), (req,res)=>{
     var itemDesc = req.body.itemDesc;
 	var location = req.body.location;
 	var expectedPrice = req.body.expectedPrice
+	var category = req.body.category
 
-    userControls.addItem(uid,itemName,itemDesc,location,req.file.buffer,expectedPrice)
+    userControls.addItem(uid,itemName,itemDesc,location,req.file.buffer,expectedPrice, category)
     .then(resp=>res.status(200).send(resp))
     .catch(err => res.status(400).send(err))
 })
