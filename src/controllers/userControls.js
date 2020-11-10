@@ -79,7 +79,7 @@ const getUserInfo = (uid)=>{
 }
 
 //Post an Item
-const addItem = (uid,itemName,itemDesc,location,file) => {
+const addItem = (uid,itemName,itemDesc,location,file,expectedPrice) => {
     return new Promise((resolve, reject)=>{
         console.log(chalk.yellow("Creating new item..."))
         var itemId = uniqid();
@@ -96,7 +96,8 @@ const addItem = (uid,itemName,itemDesc,location,file) => {
                 itemName:itemName,
                 itemDesc:itemDesc,
                 location:location,
-                file,
+				file,
+				expectedPrice,
                 DateCreated: new Date(),
             })
             .then((resp)=>{
@@ -235,7 +236,8 @@ const fetchLocationBasedItems = (location) => {
                     itemDesc: obj.itemDesc,
                     location: obj.location,
                     file : obj.file,
-                    username : obj.username
+					username : obj.username,
+					expectedPrice: obj.expectedPrice
                 }
         
                 data.push(itemData);
